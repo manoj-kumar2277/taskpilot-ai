@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TaskPilot AI - Know which project will slip before it does</title>
+<meta name="description" content="Project management with AI delay-risk prediction, smart priorities and workload insight.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230f9d8a'/%3E%3Cpath d='M8 17l16-8-6 15-2-6z' fill='white'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Sora:wght@500;600;700&display=swap">
+<style>
+:root{--ink:#0d1b2e;--ink2:#17294a;--bg:#f2f5f9;--card:#fff;--line:#e1e7ef;--mute:#5b6b80;--t:#0f9d8a;--i:#3b5bdb;--grad:linear-gradient(135deg,#0f9d8a,#3b5bdb);--ok:#12805c;--warn:#b7791f;--bad:#d9480f;--r:14px;--sh:0 1px 2px rgba(13,27,46,.05),0 8px 24px -12px rgba(13,27,46,.18);font-family:"DM Sans",system-ui,sans-serif}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font-size:14.5px;line-height:1.5}
+h1,h2,h3,.logo,.dn,.big{font-family:Sora,"DM Sans",sans-serif}
+button,input,select,textarea{font:inherit;color:inherit}button{cursor:pointer}
+:focus-visible{outline:2px solid var(--i);outline-offset:2px}
+.ic{width:18px;height:18px;flex:none}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--line);background:#fff;padding:9px 15px;border-radius:10px;font-weight:500;transition:transform .15s,box-shadow .15s,background .15s}
+.btn:hover{transform:translateY(-1px);box-shadow:var(--sh)}.btn:active{transform:none}.btn:disabled{opacity:.6;cursor:wait;transform:none}
+.btn.pri{background:var(--grad);border-color:transparent;color:#fff}.btn.dark{background:var(--ink);color:#fff;border-color:var(--ink)}.btn.wide{width:100%;padding:12px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px}.logo i{width:32px;height:32px;border-radius:9px;background:var(--grad);display:grid;place-items:center}.logo svg{width:18px;height:18px}
+/* landing */
+.land{background:var(--ink);color:#e8eef7;background-image:radial-gradient(900px 480px at 85% -10%,rgba(15,157,138,.35),transparent 60%),linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:auto,48px 48px,48px 48px}
+.wrap{max-width:1160px;margin:0 auto;padding:0 24px}
+.nav{display:flex;justify-content:space-between;align-items:center;padding:22px 0}.nav a{color:#b8c4d6;text-decoration:none;margin-right:22px}.nav a:hover{color:#fff}
+.hero{display:grid;grid-template-columns:1.15fr .85fr;gap:56px;align-items:center;padding:48px 0 88px}
+.hero h1{font-size:clamp(34px,5vw,56px);line-height:1.05;margin:0 0 18px;letter-spacing:-.02em;color:#fff}
+.hero p.lead{font-size:17px;color:#b8c4d6;max-width:520px;margin:0 0 26px}
+.pv{display:flex;gap:18px;align-items:center;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:var(--r);padding:16px 18px;max-width:520px;backdrop-filter:blur(6px)}
+.pv .dial{width:150px;flex:none}.pv .dl{fill:#b8c4d6}.pv .dn{fill:#fff}.pv ul{list-style:none;margin:0;padding:0;font-size:13px;color:#cbd5e4}.pv li{display:flex;gap:8px;margin:6px 0}.pv li .ic{width:16px;color:#5eead4}
+.authc{background:#fff;color:var(--ink);border-radius:18px;padding:28px;box-shadow:0 30px 60px -20px rgba(0,0,0,.5)}
+.authc h2{margin:0 0 4px;font-size:22px}.authc .sub{margin:0 0 6px;color:var(--mute)}
+.demo{margin-top:16px;padding:12px;background:var(--bg);border-radius:10px;font-size:12.5px;color:var(--mute)}.demo button{background:none;border:0;padding:3px 0;color:var(--i);text-align:left;display:block}
+.feat{background:var(--bg);padding:84px 0}.feat h2{font-size:30px;margin:0 0 8px;letter-spacing:-.01em}.feat .sub{color:var(--mute);margin:0 0 34px;max-width:560px}
+.fg{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}.fc{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:24px;transition:transform .2s,box-shadow .2s}.fc:hover{transform:translateY(-4px);box-shadow:var(--sh)}
+.fc .ib{width:44px;height:44px;border-radius:12px;background:var(--grad);color:#fff;display:grid;place-items:center;margin-bottom:16px}.fc h3{margin:0 0 6px;font-size:17px}.fc p{margin:0;color:var(--mute)}
+footer.ft{background:var(--ink);color:#8fa0b8;padding:26px 0;font-size:13px}
+/* forms */
+label{display:block;font-weight:500;margin:14px 0 6px;font-size:13px}
+input,select,textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;transition:border .15s,box-shadow .15s}
+input:focus,select:focus,textarea:focus{border-color:var(--i);box-shadow:0 0 0 3px rgba(59,91,219,.15);outline:0}input.bad{border-color:var(--bad)}
+.fe{color:var(--bad);font-size:12.5px;min-height:18px;margin-top:3px}
+/* app */
+.app{display:grid;grid-template-columns:236px 1fr;min-height:100vh}
+.side{background:var(--ink);color:#c9d4e4;padding:22px 16px;display:flex;flex-direction:column;gap:6px;position:sticky;top:0;height:100vh}.side .logo{color:#fff;margin:0 8px 22px}
+.nv{display:flex;align-items:center;gap:12px;background:none;border:0;color:inherit;padding:11px 12px;border-radius:10px;text-align:left;transition:background .15s}.nv:hover{background:rgba(255,255,255,.07)}
+.nv.on{background:var(--grad);color:#fff}
+.me{margin-top:auto;padding:12px;border-radius:12px;background:rgba(255,255,255,.06);display:flex;gap:10px;align-items:center;font-size:13px}.me b{display:block;color:#fff}.me small{color:#8fa0b8}.me button{margin-left:auto;background:none;border:0;color:#8fa0b8;padding:4px}.me button:hover{color:#fff}
+.av{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:11.5px;font-weight:600;flex:none}
+main{padding:26px 32px 40px;min-width:0}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:22px}.top h1{margin:0;font-size:26px;letter-spacing:-.01em}.top p{margin:4px 0 0;color:var(--mute);max-width:560px}
+.acts{display:flex;gap:10px;flex-wrap:wrap}.acts select{width:auto;min-width:170px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:20px;box-shadow:var(--sh)}.card h3{margin:0 0 14px;font-size:15px;display:flex;align-items:center;gap:8px}
+.tools{display:flex;gap:12px;margin-bottom:16px;align-items:center}.sr{position:relative;flex:1;max-width:340px}.sr .ic{position:absolute;left:11px;top:11px;color:var(--mute)}.sr input{padding-left:36px}
+.board{display:grid;grid-template-columns:repeat(3,minmax(240px,1fr));gap:16px;align-items:start}
+.col{background:#e8edf4;border-radius:var(--r);padding:12px;min-height:260px;transition:background .15s,outline .15s}.col.over{background:#dbe5f7;outline:2px dashed var(--i)}
+.col h3{margin:2px 4px 12px;font-size:13.5px;display:flex;align-items:center;gap:8px}.col h3 em{margin-left:auto;font-style:normal;background:#fff;border-radius:99px;padding:1px 9px;font-size:12px;color:var(--mute)}.dot{width:9px;height:9px;border-radius:50%}
+.tk{background:#fff;border-radius:12px;padding:13px;margin-bottom:10px;border:1px solid var(--line);cursor:grab;transition:transform .15s,box-shadow .15s}.tk:hover{transform:translateY(-2px);box-shadow:var(--sh)}.tk.drag{opacity:.45}
+.tk b{display:block;font-weight:600;margin-bottom:10px}.tm{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.tm .av{margin-left:auto;width:24px;height:24px;font-size:10px}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:12px;padding:2px 9px;border-radius:99px;background:var(--bg);color:var(--mute)}.chip .ic{width:13px;height:13px}
+.chip.high{background:#fde8df;color:var(--bad)}.chip.medium{background:#fbf0d9;color:var(--warn)}.chip.low{background:#dcf3ea;color:var(--ok)}.chip.bad{background:#fde8df;color:var(--bad)}.chip.warn{background:#fbf0d9;color:var(--warn)}
+.empty{text-align:center;color:var(--mute);padding:26px 10px;border:1.5px dashed #c6d0de;border-radius:12px;font-size:13px}
+.dg{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}.s12{grid-column:span 12}.s6{grid-column:span 6}.s4{grid-column:span 4}.s3{grid-column:span 3}.s8{grid-column:span 8}
+.riskc{display:flex;gap:28px;align-items:center;background:var(--ink);color:#fff;border:0}.riskc .dial{width:260px;flex:none}.riskc .dl{fill:#9fb0c8}.riskc .dn{fill:#fff;font-size:40px}.riskc .tr{stroke:rgba(255,255,255,.12)}
+.riskc h3{font-size:20px;margin-bottom:8px}.riskc p{margin:6px 0;color:#c9d4e4;display:flex;gap:8px}.riskc p .ic{color:#5eead4;margin-top:2px}
+.dial .dv{animation:draw 1.1s cubic-bezier(.2,.8,.2,1)}@keyframes draw{from{stroke-dasharray:0 252}}.dn{font-size:36px;font-weight:700}.dl{font-size:11.5px;fill:var(--mute)}
+.kp{display:flex;gap:14px;align-items:center}.kp .ib{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:#e7efff;color:var(--i)}.big{font-size:26px;font-weight:700;line-height:1.1}.kp small{color:var(--mute)}
+.pb{height:6px;background:var(--line);border-radius:9px;margin-top:8px;overflow:hidden}.pb i{display:block;height:100%;background:var(--grad);border-radius:9px;transition:width .6s}
+ol.q{list-style:none;margin:0;padding:0;counter-reset:q}ol.q li{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}ol.q li:last-child{border:0}
+ol.q li:before{counter-increment:q;content:counter(q);width:24px;height:24px;border-radius:7px;background:var(--bg);display:grid;place-items:center;font-size:12px;font-weight:600;flex:none}ol.q span{flex:1}ol.q b{color:var(--i)}
+.wl{display:grid;grid-template-columns:130px 1fr 44px;gap:10px;align-items:center;margin:11px 0;font-size:13px}.wl div{height:8px;background:var(--line);border-radius:9px;overflow:hidden}.wl i{display:block;height:100%;background:var(--grad);border-radius:9px;transition:width .6s}
+.rep{white-space:pre-wrap;line-height:1.6;margin-top:14px;background:var(--bg);border-radius:10px;padding:14px}.act li{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);list-style:none}.act{margin:0;padding:0}
+table{width:100%;border-collapse:collapse}th{text-align:left;font-size:12.5px;color:var(--mute);font-weight:500}td,th{padding:12px 10px;border-bottom:1px solid var(--line)}td .u{display:flex;align-items:center;gap:10px}.tw{overflow-x:auto}
+.sk{background:linear-gradient(90deg,#e6ebf2,#f4f7fb,#e6ebf2);background-size:200% 100%;animation:sh 1.2s infinite;border-radius:12px}@keyframes sh{to{background-position:-200% 0}}
+dialog{border:0;border-radius:18px;padding:26px;width:min(440px,94vw);box-shadow:0 30px 70px -20px rgba(13,27,46,.5)}dialog::backdrop{background:rgba(13,27,46,.55);backdrop-filter:blur(3px)}
+dialog h3{margin:0;font-size:19px}.dx{position:absolute;right:14px;top:14px;border:0;background:none;color:var(--mute)}.row{display:flex;gap:10px;justify-content:flex-end;margin-top:18px}
+#toasts{position:fixed;right:18px;top:18px;display:flex;flex-direction:column;gap:10px;z-index:99}
+.toast{background:var(--ink);color:#fff;padding:12px 16px;border-radius:12px;box-shadow:var(--sh);display:flex;gap:10px;align-items:center;animation:ti .25s}.toast.err{background:var(--bad)}@keyframes ti{from{transform:translateX(30px);opacity:0}}
+@media(max-width:960px){.hero{grid-template-columns:1fr;gap:36px;padding-bottom:56px}.fg{grid-template-columns:1fr}.s6,.s4,.s3,.s8{grid-column:span 12}.s3{grid-column:span 6}.riskc{flex-direction:column;text-align:left}.riskc .dial{width:240px;align-self:center}
+.app{grid-template-columns:1fr}.side{position:fixed;inset:auto 0 0 0;height:auto;flex-direction:row;padding:8px 10px;z-index:20;justify-content:space-around;align-items:center}.side .logo,.me small,.me b{display:none}.me{margin:0;padding:6px;background:none}.nv span{display:none}.nv{padding:12px 16px}
+main{padding:20px 16px 96px}.board{grid-template-columns:1fr}.acts select{flex:1}}
+@media(max-width:520px){.s3{grid-column:span 12}.wl{grid-template-columns:90px 1fr 40px}.pv{flex-direction:column;align-items:flex-start}.nav a{display:none}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app"></div><dialog id="dlg"></dialog><div id="toasts" role="status" aria-live="polite"></div>
+<script>
+const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const IC = { board: '<rect x="3" y="3" width="7" height="18" rx="2"/><rect x="14" y="3" width="7" height="11" rx="2"/>', dash: '<path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/>',
+  team: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><path d="M16 4.5a3.5 3.5 0 010 7M18 14.5c2 .6 3.5 2.4 3.5 5.5"/>', plus: '<path d="M12 5v14M5 12h14"/>',
+  out: '<path d="M9 4H5v16h4M16 8l4 4-4 4M20 12H9"/>', alert: '<path d="M12 3l10 18H2z"/><path d="M12 10v4M12 17.5v.01"/>', clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  check: '<path d="M4 12l5 5L20 6"/>', list: '<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>', spark: '<path d="M12 3l2.2 6.3L21 12l-6.8 2.7L12 21l-2.2-6.3L3 12l6.8-2.7z"/>',
+  search: '<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>', cal: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>', shield: '<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/>', x: '<path d="M6 6l12 12M18 6L6 18"/>' };
+const ic = (n, c = '') => `<svg class="ic ${c}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[n]}</svg>`;
+const LOGO = '<i><svg viewBox="0 0 24 24" fill="#fff"><path d="M3 12.5L21 4l-6.5 17-3-7.5z"/></svg></i>';
+const S = { token: localStorage.getItem('tp_token'), user: null, projects: [], pid: null, tasks: [], users: [], an: null, tab: 'board', q: '', reg: false, loading: !!localStorage.getItem('tp_token'), sum: '', sumSrc: '', sumBusy: false };
+const isMgr = () => S.user && ['Admin', 'Manager'].includes(S.user.role);
+const STATUS = [['todo', 'To do', '#8a99ad'], ['doing', 'In progress', '#3b5bdb'], ['done', 'Done', '#12805c']];
+
+async function api(path, o = {}) {
+  const r = await fetch('/api' + path, { method: o.method || 'GET', headers: { 'Content-Type': 'application/json', ...(S.token ? { Authorization: 'Bearer ' + S.token } : {}) }, body: o.body ? JSON.stringify(o.body) : undefined });
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) { if (r.status === 401 && S.user) signOut(); throw new Error(d.error || 'Something went wrong. Try again.'); }
+  return d;
+}
+function toast(msg, err) { const t = document.createElement('div'); t.className = 'toast' + (err ? ' err' : ''); t.innerHTML = ic(err ? 'alert' : 'check') + esc(msg); $('#toasts').append(t); setTimeout(() => t.remove(), 3400); }
+function signOut() { localStorage.removeItem('tp_token'); Object.assign(S, { token: null, user: null, loading: false, sum: '' }); render(); }
+const hue = s => [...String(s)].reduce((a, c) => a + c.charCodeAt(0) * 7, 0) % 360;
+const uname = id => S.users.find(u => u.id === id)?.name;
+const av = n => n ? `<span class="av" title="${esc(n)}" style="background:hsl(${hue(n)} 50% 40%)">${esc(n.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase())}</span>` : '<span class="av" title="Unassigned" style="background:#b6c1d1">?</span>';
+const today = () => new Date().toISOString().slice(0, 10);
+const diff = d => Math.round((Date.parse(d + 'T00:00:00') - Date.parse(today() + 'T00:00:00')) / 864e5);
+function dueChip(t) {
+  if (!t.due) return `<span class="chip">${ic('cal')}No date</span>`;
+  const n = diff(t.due), live = t.status !== 'done';
+  return `<span class="chip ${live && n < 0 ? 'bad' : live && n <= 2 ? 'warn' : ''}">${ic('cal')}${n < 0 ? -n + 'd late' : n === 0 ? 'Today' : n === 1 ? 'Tomorrow' : t.due.slice(5)}</span>`;
+}
+function dial(score, level) {
+  const L = Math.PI * 80, col = { Low: 'var(--ok)', Medium: '#e3a008', High: '#ff7a3d' }[level], d = 'M20 100A80 80 0 0 1 180 100';
+  return `<svg class="dial" viewBox="0 0 200 118" role="img" aria-label="Delay risk ${score} out of 100, ${level}"><path class="tr" d="${d}" fill="none" stroke="var(--line)" stroke-width="14" stroke-linecap="round"/>
+  <path class="dv" d="${d}" fill="none" stroke="${col}" stroke-width="14" stroke-linecap="round" style="stroke-dasharray:${Math.max(.1, L * score / 100)} ${L}"/><text x="100" y="92" text-anchor="middle" class="dn">${score}</text><text x="100" y="112" text-anchor="middle" class="dl">${level} risk</text></svg>`;
+}
+
+/* ---------- data ---------- */
+async function loadAll() {
+  [S.projects, S.users] = await Promise.all([api('/projects'), api('/users')]);
+  if (!S.projects.some(p => p.id === S.pid)) S.pid = S.projects[0]?.id || null;
+  await loadProject();
+}
+async function loadProject() {
+  if (!S.pid) { S.tasks = []; S.an = null; return; }
+  [S.tasks, S.an] = await Promise.all([api(`/projects/${S.pid}/tasks`), api(`/projects/${S.pid}/analytics`)]);
+}
+async function refresh() { try { await loadProject(); } catch (e) { toast(e.message, 1); } render(); }
+
+/* ---------- views ---------- */
+function render() { S.user ? renderApp() : renderLanding(); }
+function renderLanding() {
+  const feats = [['spark', 'Delay-risk prediction', 'A live 0-100 score built from your pace, deadline and overdue work, with the reasons spelled out.'], ['list', 'Smart priorities', 'Tasks are ranked by priority and urgency, so the team always knows what to pick up next.'], ['shield', 'Roles that fit teams', 'Admins, managers and members each see and change only what they should.']];
+  $('#app').innerHTML = `<div class="land"><div class="wrap"><header class="nav"><div class="logo">${LOGO}TaskPilot AI</div><nav><a href="#features">Features</a><button class="btn" data-act="focusauth">Sign in</button></nav></header>
+  <section class="hero"><div><h1>Know which project will slip before it does.</h1><p class="lead">TaskPilot AI tracks your team's real pace and warns you about delays, overloaded people and tasks that need attention first.</p>
+  <div class="pv">${dial(72, 'High')}<ul><li>${ic('alert')}Pace is behind the deadline</li><li>${ic('list')}Next: Set up authentication</li><li>${ic('team')}Divya has 24h of open work</li></ul></div></div>
+  <div class="authc" id="authc"><h2>${S.reg ? 'Create your account' : 'Welcome back'}</h2><p class="sub">${S.reg ? 'Join your team workspace.' : 'Sign in to your workspace.'}</p>
+  <form id="af" novalidate>${S.reg ? '<label for="n">Full name</label><input id="n" autocomplete="name"><div class="fe" id="e_n"></div>' : ''}<label for="e">Email</label><input id="e" type="email" autocomplete="email"><div class="fe" id="e_e"></div>
+  <label for="p">Password</label><input id="p" type="password" autocomplete="${S.reg ? 'new' : 'current'}-password"><div class="fe" id="e_p"></div><button class="btn pri wide" id="go">${S.reg ? 'Create account' : 'Sign in'}</button></form>
+  <p style="text-align:center;margin:14px 0 0;color:var(--mute)">${S.reg ? 'Already registered?' : 'New here?'} <a href="#" data-act="swmode" style="color:var(--i)">${S.reg ? 'Sign in' : 'Create an account'}</a></p>
+  <div class="demo">Try a demo account (click to fill)<button data-demo="manager@taskpilot.com|manager123">Manager: manager@taskpilot.com</button><button data-demo="admin@taskpilot.com|admin123">Admin: admin@taskpilot.com</button><button data-demo="dev@taskpilot.com|member123">Member: dev@taskpilot.com</button></div></div></section></div></div>
+  <section class="feat" id="features"><div class="wrap"><h2>Run projects with foresight</h2><p class="sub">Everything a delivery team needs to stay ahead of the deadline.</p><div class="fg">${feats.map(f => `<div class="fc"><div class="ib">${ic(f[0])}</div><h3>${f[1]}</h3><p>${f[2]}</p></div>`).join('')}</div></div></section>
+  <footer class="ft"><div class="wrap">TaskPilot AI - Intelligent Project Management and Predictive Analytics Dashboard</div></footer>`;
+  $('#af').onsubmit = submitAuth;
+}
+async function submitAuth(e) {
+  e.preventDefault(); $$('.fe').forEach(x => x.textContent = ''); $$('input.bad').forEach(x => x.classList.remove('bad'));
+  const v = { n: $('#n')?.value.trim(), e: $('#e').value.trim(), p: $('#p').value }, er = {};
+  if (S.reg && (!v.n || v.n.length < 2)) er.n = 'Enter your full name';
+  if (!/^\S+@\S+\.\S+$/.test(v.e)) er.e = 'Enter a valid email address';
+  if (v.p.length < 6) er.p = 'Password must be at least 6 characters';
+  if (Object.keys(er).length) { for (const k in er) { $('#e_' + k).textContent = er[k]; $('#' + k).classList.add('bad'); } return; }
+  const b = $('#go'); b.disabled = true; b.textContent = 'Please wait...';
+  try {
+    const d = await api(S.reg ? '/auth/register' : '/auth/login', { method: 'POST', body: { name: v.n, email: v.e, password: v.p } });
+    S.token = d.token; localStorage.setItem('tp_token', d.token); S.user = d.user; S.loading = true; render(); await loadAll(); S.loading = false; render(); toast('Signed in as ' + d.user.name);
+  } catch (err) { S.loading = false; $('#e_p').textContent = err.message; b.disabled = false; b.textContent = S.reg ? 'Create account' : 'Sign in'; }
+}
+function renderApp() {
+  const p = S.projects.find(x => x.id === S.pid), nav = [['board', 'board', 'Board'], ['dash', 'dash', 'Dashboard'], ...(S.user.role === 'Admin' ? [['team', 'team', 'Team']] : [])];
+  $('#app').innerHTML = `<div class="app"><aside class="side"><div class="logo">${LOGO}TaskPilot AI</div>${nav.map(([k, i, l]) => `<button class="nv ${S.tab === k ? 'on' : ''}" data-act="tab" data-t="${k}" aria-label="${l}">${ic(i)}<span>${l}</span></button>`).join('')}
+  <div class="me">${av(S.user.name)}<div><b>${esc(S.user.name)}</b><small>${S.user.role}</small></div><button data-act="out" aria-label="Sign out" title="Sign out">${ic('out')}</button></div></aside>
+  <main>${S.loading ? skeleton() : !p ? `<div class="card empty">No projects yet. ${isMgr() ? 'Create your first project to get started.' : 'Ask a manager to create one.'}${isMgr() ? '<br><br><button class="btn pri" data-act="newproject">' + ic('plus') + 'New project</button>' : ''}</div>` :
+  `<div class="top"><div><h1>${esc(p.name)}</h1><p>${esc(p.description)}</p></div><div class="acts">${S.projects.length > 1 ? `<select id="ps" aria-label="Project">${S.projects.map(x => `<option value="${x.id}" ${x.id === S.pid ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select>` : ''}
+  ${isMgr() ? `<button class="btn" data-act="newproject">${ic('plus')}Project</button><button class="btn pri" data-act="newtask">${ic('plus')}New task</button>` : ''}</div></div>
+  ${S.tab === 'board' ? `<div class="tools"><div class="sr">${ic('search')}<input id="q" placeholder="Search tasks" value="${esc(S.q)}" aria-label="Search tasks"></div><span class="chip">${ic('cal')}Due ${esc(p.deadline)}</span></div><div id="bw">${board()}</div>` : S.tab === 'dash' ? dash() : team()}`}</main></div>`;
+}
+const skeleton = () => `<div class="sk" style="height:36px;width:260px;margin-bottom:24px"></div><div class="board">${[1, 2, 3].map(() => '<div class="sk" style="height:320px"></div>').join('')}</div>`;
+function board() {
+  const q = S.q.toLowerCase();
+  return `<div class="board">${STATUS.map(([k, l, c]) => { const ts = S.tasks.filter(t => t.status === k && t.title.toLowerCase().includes(q));
+    return `<div class="col" data-s="${k}"><h3><span class="dot" style="background:${c}"></span>${l}<em>${ts.length}</em></h3>${ts.map(t => `<div class="tk" draggable="true" data-id="${t.id}" tabindex="0" ${isMgr() ? 'data-act="edit"' : ''}><b>${esc(t.title)}</b>
+    <div class="tm"><span class="chip ${t.priority}">${t.priority}</span>${dueChip(t)}${av(uname(t.assigneeId))}</div></div>`).join('') || `<div class="empty">${q ? 'No matching tasks' : k === 'todo' ? 'Nothing waiting' : 'Drag tasks here'}</div>`}</div>`; }).join('')}</div>`;
+}
+function dash() {
+  const a = S.an; if (!a) return '<div class="card empty">No analytics yet.</div>'; const st = a.stats, mx = Math.max(1, ...a.workload.map(w => w.hours));
+  const kp = [['check', st.progress + '%', 'Complete', `<div class="pb"><i style="width:${st.progress}%"></i></div>`], ['list', st.open, 'Open tasks', ''], ['alert', st.overdue, 'Overdue', ''], ['clock', Math.max(st.daysLeft, 0), 'Days to deadline', '']];
+  return `<div class="dg"><div class="card riskc s12">${dial(a.risk.score, a.risk.level)}<div><h3>Delay risk: ${a.risk.level}</h3>${a.risk.reasons.map(r => `<p>${ic('spark')}<span>${esc(r)}</span></p>`).join('')}</div></div>
+  ${kp.map(k => `<div class="card s3"><div class="kp"><div class="ib">${ic(k[0])}</div><div><div class="big">${k[1]}</div><small>${k[2]}</small></div></div>${k[3]}</div>`).join('')}
+  <div class="card s6"><h3>${ic('list')}Suggested priority order</h3><ol class="q">${a.priorityQueue.map(t => `<li><span>${esc(t.title)}</span><b title="AI priority score">${t.aiScore}</b></li>`).join('') || '<div class="empty">All caught up</div>'}</ol></div>
+  <div class="card s6"><h3>${ic('team')}Workload (open hours)</h3>${a.workload.map(w => `<div class="wl"><span>${esc(w.name)}</span><div><i style="width:${w.hours / mx * 100}%"></i></div><b>${w.hours}h</b></div>`).join('') || '<div class="empty">No open work assigned</div>'}</div>
+  <div class="card s6"><h3>${ic('spark')}Status report</h3><button class="btn dark" data-act="report" ${S.sumBusy ? 'disabled' : ''}>${S.sumBusy ? 'Writing report...' : 'Generate report'}</button>${S.sum ? `<div class="rep">${esc(S.sum)}</div><small style="color:var(--mute)">${S.sumSrc === 'llm' ? 'Written by AI' : 'Generated from project data'}</small>` : ''}</div>
+  <div class="card s6"><h3>${ic('clock')}Recent activity</h3><ul class="act">${a.activity.map(x => `<li><span>${esc(x.msg)}</span><span style="color:var(--mute);white-space:nowrap">${new Date(x.at).toLocaleDateString()}</span></li>`).join('')}</ul></div></div>`;
+}
+const team = () => `<div class="card tw"><table><tr><th>Member</th><th>Email</th><th>Role</th></tr>${S.users.map(u => `<tr><td><div class="u">${av(u.name)}${esc(u.name)}</div></td><td>${esc(u.email)}</td>
+  <td><select data-role="${u.id}" aria-label="Role for ${esc(u.name)}" style="width:auto">${['Admin', 'Manager', 'Member'].map(r => `<option ${r === u.role ? 'selected' : ''}>${r}</option>`).join('')}</select></td></tr>`).join('')}</table></div>`;
+
+/* ---------- dialogs ---------- */
+const dlg = $('#dlg');
+function openDlg(html) { dlg.innerHTML = `<button class="dx" data-act="close" aria-label="Close">${ic('x')}</button>` + html; dlg.showModal(); }
+const fieldErr = (id, m) => { $('#e_' + id).textContent = m; $('#' + id).classList.add('bad'); };
+function projectDlg() {
+  openDlg(`<h3>New project</h3><label for="a">Name</label><input id="a"><div class="fe" id="e_a"></div><label for="b">Description</label><textarea id="b" rows="2"></textarea><label for="c">Deadline</label><input id="c" type="date" min="${today()}"><div class="fe" id="e_c"></div>
+  <div class="row"><button class="btn" data-act="close">Cancel</button><button class="btn pri" id="ok">Create project</button></div>`);
+  $('#ok').onclick = async () => {
+    $$('.fe', dlg).forEach(x => x.textContent = ''); let bad = 0;
+    if ($('#a').value.trim().length < 3) { fieldErr('a', 'Enter at least 3 characters'); bad = 1; } if (!$('#c').value) { fieldErr('c', 'Pick a deadline'); bad = 1; } if (bad) return;
+    $('#ok').disabled = true;
+    try { const p = await api('/projects', { method: 'POST', body: { name: $('#a').value.trim(), description: $('#b').value.trim(), deadline: $('#c').value } }); S.projects.push(p); S.pid = p.id; S.sum = ''; dlg.close(); toast('Project created'); await refresh(); }
+    catch (e) { $('#ok').disabled = false; toast(e.message, 1); }
+  };
+}
+function taskDlg(t) {
+  const v = t || { priority: 'medium', estimate: 4 };
+  openDlg(`<h3>${t ? 'Edit task' : 'New task'}</h3><label for="a">Title</label><input id="a" value="${esc(v.title)}"><div class="fe" id="e_a"></div>
+  <label for="b">Assignee</label><select id="b"><option value="">Unassigned</option>${S.users.map(u => `<option value="${u.id}" ${u.id === v.assigneeId ? 'selected' : ''}>${esc(u.name)}</option>`).join('')}</select>
+  <label for="c">Priority</label><select id="c">${['high', 'medium', 'low'].map(x => `<option ${x === v.priority ? 'selected' : ''}>${x}</option>`).join('')}</select>
+  <label for="d">Due date</label><input id="d" type="date" value="${v.due || ''}"><label for="h">Estimate (hours)</label><input id="h" type="number" min="0" value="${v.estimate}"><div class="fe" id="e_h"></div>
+  <div class="row">${t ? '<button class="btn" id="del" style="color:var(--bad);margin-right:auto">Delete</button>' : ''}<button class="btn" data-act="close">Cancel</button><button class="btn pri" id="ok">Save task</button></div>`);
+  if (t) $('#del').onclick = async () => { if (!confirm('Delete this task?')) return; try { await api('/tasks/' + t.id, { method: 'DELETE' }); dlg.close(); toast('Task deleted'); refresh(); } catch (e) { toast(e.message, 1); } };
+  $('#ok').onclick = async () => {
+    $$('.fe', dlg).forEach(x => x.textContent = ''); let bad = 0;
+    if ($('#a').value.trim().length < 3) { fieldErr('a', 'Enter at least 3 characters'); bad = 1; } if ($('#h').value === '' || +$('#h').value < 0) { fieldErr('h', 'Enter hours of 0 or more'); bad = 1; } if (bad) return;
+    const body = { title: $('#a').value.trim(), assigneeId: $('#b').value || null, priority: $('#c').value, due: $('#d').value || null, estimate: $('#h').value };
+    $('#ok').disabled = true;
+    try { await api(t ? '/tasks/' + t.id : `/projects/${S.pid}/tasks`, { method: t ? 'PATCH' : 'POST', body }); dlg.close(); toast(t ? 'Task updated' : 'Task added'); refresh(); } catch (e) { $('#ok').disabled = false; toast(e.message, 1); }
+  };
+}
+
+/* ---------- events ---------- */
+const ACT = {
+  swmode: () => { S.reg = !S.reg; render(); }, focusauth: () => ($('#e') || $('#authc')).focus(), close: () => dlg.close(), out: signOut,
+  tab: b => { S.tab = b.dataset.t; render(); }, newproject: projectDlg, newtask: () => taskDlg(),
+  edit: b => taskDlg(S.tasks.find(t => t.id === b.dataset.id)),
+  report: async () => { S.sumBusy = true; render(); try { const d = await api(`/projects/${S.pid}/summary`, { method: 'POST' }); S.sum = d.summary; S.sumSrc = d.source; } catch (e) { toast(e.message, 1); } S.sumBusy = false; render(); }
+};
+document.addEventListener('click', e => {
+  const demo = e.target.closest('[data-demo]'); if (demo) { const [m, p] = demo.dataset.demo.split('|'); if (S.reg) { S.reg = false; render(); } $('#e').value = m; $('#p').value = p; return; }
+  const b = e.target.closest('[data-act]'); if (!b) return; if (b.tagName === 'A') e.preventDefault(); ACT[b.dataset.act]?.(b);
+});
+dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
+document.addEventListener('keydown', e => { const t = e.target.closest?.('.tk'); if (t && e.key === 'Enter') t.click(); });
+document.addEventListener('change', async e => {
+  if (e.target.id === 'ps') { S.pid = e.target.value; S.sum = ''; S.loading = true; render(); await refresh(); S.loading = false; render(); }
+  if (e.target.dataset.role) try { await api(`/users/${e.target.dataset.role}/role`, { method: 'PATCH', body: { role: e.target.value } }); S.users = await api('/users'); toast('Role updated'); } catch (er) { toast(er.message, 1); render(); }
+});
+document.addEventListener('input', e => { if (e.target.id === 'q') { S.q = e.target.value; $('#bw').innerHTML = board(); } });
+let dragId = null;
+document.addEventListener('dragstart', e => { const t = e.target.closest?.('.tk'); if (t) { dragId = t.dataset.id; t.classList.add('drag'); } });
+document.addEventListener('dragend', e => e.target.closest?.('.tk')?.classList.remove('drag'));
+document.addEventListener('dragover', e => { const c = e.target.closest?.('.col'); if (c) { e.preventDefault(); $$('.col.over').forEach(x => x !== c && x.classList.remove('over')); c.classList.add('over'); } });
+document.addEventListener('drop', async e => {
+  const c = e.target.closest?.('.col'); $$('.col.over').forEach(x => x.classList.remove('over')); if (!c || !dragId) return; e.preventDefault();
+  const t = S.tasks.find(x => x.id === dragId); dragId = null; if (!t || t.status === c.dataset.s) return;
+  try { await api('/tasks/' + t.id, { method: 'PATCH', body: { status: c.dataset.s } }); toast('Moved to ' + STATUS.find(s => s[0] === c.dataset.s)[1]); } catch (er) { toast(er.message, 1); } refresh();
+});
+
+(async function boot() {
+  if (!S.token) return render();
+  render(); try { S.user = await api('/me'); await loadAll(); } catch { S.token = null; S.user = null; localStorage.removeItem('tp_token'); }
+  S.loading = false; render();
+})();
+setInterval(async () => { if (!S.user || S.loading || dlg.open || S.tab === 'team') return; try { const b = JSON.stringify([S.tasks, S.an]); await loadProject(); if (JSON.stringify([S.tasks, S.an]) !== b) render(); } catch {} }, 20000);
+</script>
+</body>
+</html>
