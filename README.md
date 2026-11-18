@@ -14,7 +14,7 @@ An intelligent project management and predictive analytics dashboard with AI del
 ![JavaScript](https://img.shields.io/badge/Frontend-Vanilla%20JS-F7DF1E?logo=javascript&logoColor=black)
 ![License](https://img.shields.io/badge/License-MIT-blue)
 
-[**Live demo**](https://YOUR-APP.onrender.com) | [Features](#-features) | [Screenshots](#-screenshots) | [Quick start](#-quick-start) | [Deploy](#-deploy-on-render)
+[**Live demo**](https://taskpilot-ai-j61z.onrender.com/) | [Features](#-features) | [Screenshots](#-screenshots) | [Quick start](#-quick-start) | [Deploy](#-deploy-on-render)
 
 </div>
 
